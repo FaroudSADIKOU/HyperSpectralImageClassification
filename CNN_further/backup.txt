@@ -1,0 +1,42 @@
+K = Y_train.shape[1] #
+
+#some initializers
+initializer_1 = initializers.RandomNormal(stddev=0.01)
+
+model = Sequential()
+
+model.add(Conv2D(112, (6,6), padding='same', input_shape=X_train.shape[1:], activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2) ))
+
+model.add(Conv2D(112, (5, 5), padding='same', activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+
+#model.add(Conv2D(128, (5,5), padding='same', activation='relu'))
+#model.add(MaxPooling2D(pool_size=(2, 2)))
+
+model.add(Flatten())
+#model.add(Dropout(0.22))
+model.add(Dense(512, activation='relu', kernel_initializer = initializer_1))
+
+#model.add(Dropout(0.28)
+model.add(Dense(K, activation='softmax'))
+
+model.compile(
+    loss='categorical_crossentropy',
+    optimizer=Adam(learning_rate=0.003),
+    metrics=['accuracy']
+)
+
+al_acc_callback=ValAccuracyCallback(threshold=1.00)
+lr_callback = callbacks.ReduceLROnPlateau()
+
+EPOCH = 200; BATCH_SIZE = 32
+
+
+history = model.fit(
+    X_train, Y_train, 
+    validation_split=0.1,
+    batch_size = BATCH_SIZE,
+    epochs=EPOCH, 
+    callbacks=[val_acc_callback, lr_callback]
+)
